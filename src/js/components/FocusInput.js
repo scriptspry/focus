@@ -6,15 +6,19 @@ export default class SessionsList extends Component {
     this.state = { newTodoValue: '' };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.checkForEnter = this.checkForEnter.bind(this);
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
+  handleSubmit() {
     const { addTodo } = this.props;
     const { newTodoValue } = this.state;
-    if (newTodoValue.length > 0) {
+
+    if (newTodoValue.trim().indexOf('\n') > 0) {
+      newTodoValue.trim().split('\n').forEach((v) => {
+        addTodo(v);
+      });
+    } else if (newTodoValue.length > 0) {
       addTodo(newTodoValue);
-      this.setState({ newTodoValue: '' });
     }
   }
 
@@ -22,18 +26,28 @@ export default class SessionsList extends Component {
     this.setState({ newTodoValue: e.target.value });
   }
 
+  checkForEnter(e) {
+    if (e.which === 13 || e.keyCode === 13) {
+      this.handleSubmit();
+      this.setState({ newTodoValue: '' });
+    }
+  }
+
   render() {
     const { newTodoValue } = this.state;
     const { placeholder } = this.props;
 
     return (
-      <form onSubmit={this.handleSubmit}>
-        <input
+      <form>
+        <textarea
+          onKeyPress={this.checkForEnter}
           onChange={this.handleChange}
           placeholder={placeholder}
-          type="text"
           value={newTodoValue}
-        />
+          defaultValue={newTodoValue}
+          rows={1}
+          style={{ resize: 'none' }}
+        ></textarea>
       </form>
     );
   }
